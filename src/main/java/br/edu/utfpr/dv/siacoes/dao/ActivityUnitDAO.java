@@ -12,6 +12,19 @@ import br.edu.utfpr.dv.siacoes.log.UpdateEvent;
 import br.edu.utfpr.dv.siacoes.model.ActivityUnit;
 
 public class ActivityUnitDAO {
+
+	public void closeStatement(PreparedStatement stmt){
+		if((stmt != null) && !stmt.isClosed())
+					stmt.close();;
+	}
+	public void closeResult(ResultSet rs){
+		if((rs != null) && !rs.isClosed())
+					rs.close();
+	}
+	public void closeConnection(Connection conn){
+		if((conn != null) && !conn.isClosed())
+					conn.close();
+	}
 	
 	public List<ActivityUnit> listAll() throws SQLException{
 		Connection conn = null;
@@ -32,12 +45,9 @@ public class ActivityUnitDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
@@ -60,12 +70,9 @@ public class ActivityUnitDAO {
 				return null;
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
@@ -108,12 +115,9 @@ public class ActivityUnitDAO {
 			
 			return unit.getIdActivityUnit();
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
