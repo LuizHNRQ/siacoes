@@ -14,34 +14,40 @@ import br.edu.utfpr.dv.siacoes.model.Department;
 
 public class DepartmentDAO {
 
-	public Department findById(int id) throws SQLException{
-	
-		try{
+	public void closeStatement(PreparedStatement stmt){
+		if((stmt != null) && !stmt.isClosed())
+					stmt.close();;
+	}
+	public void closeResult(ResultSet rs){
+		if((rs != null) && !rs.isClosed())
+					rs.close();
+	}
+	public void closeConnection(Connection conn){
+		if((conn != null) && !conn.isClosed())
+					conn.close();
+	}
 
+	public Department findById(int id) throws SQLException{
+
+		try{
 			Statement = "SELECT department.*, campus.name AS campusName " +
 				"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " +
 				"WHERE idDepartment = ?"
 
 			Connection conn = ConnectionDAO.getInstance().getConnection();
 			PreparedStatement stmt = conn.prepareStatement(Statement);
-		
 			stmt.setInt(1, id);
-			
+		
 			rs = stmt.executeQuery();
-			
 			if(rs.next()){
 				return this.loadObject(rs);
 			}else{
 				return null;
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
-		}
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 	}
 	
 	public List<Department> listAll(boolean onlyActive) throws SQLException{
@@ -65,12 +71,9 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
@@ -95,12 +98,9 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+		closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
@@ -151,12 +151,9 @@ public class DepartmentDAO {
 			
 			return department.getIdDepartment();
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
