@@ -15,6 +15,19 @@ import br.edu.utfpr.dv.siacoes.model.Module;
 import br.edu.utfpr.dv.siacoes.model.User;
 
 public class BugReportDAO {
+
+	public void closeStatement(PreparedStatement stmt){
+		if((stmt != null) && !stmt.isClosed())
+					stmt.close();
+	}
+	public void closeResult(ResultSet rs){
+		if((rs != null) && !rs.isClosed())
+					rs.close();
+	}
+	public void closeConnection(Connection conn){
+		if((conn != null) && !conn.isClosed())
+					conn.close();
+	}
 	
 	public BugReport findById(int id) throws SQLException{
 		Connection conn = null;
@@ -37,12 +50,9 @@ public class BugReportDAO {
 				return null;
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
@@ -66,12 +76,9 @@ public class BugReportDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
@@ -120,12 +127,9 @@ public class BugReportDAO {
 			
 			return bug.getIdBugReport();
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			closeStatement(stmt);
+			closeResult(rs);
+			closeConnection(conn);
 		}
 	}
 	
