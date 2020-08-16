@@ -44,11 +44,8 @@ public class BugReportDAO {
 			
 			rs = stmt.executeQuery();
 			
-			if(rs.next()){
-				return this.loadObject(rs);
-			}else{
-				return null;
-			}
+			rs.next() ? return this.loadObject(rs) : return null;
+			
 		}finally{
 			closeStatement(stmt);
 			closeResult(rs);
