@@ -15,16 +15,15 @@ import br.edu.utfpr.dv.siacoes.model.Department;
 public class DepartmentDAO {
 
 	public Department findById(int id) throws SQLException{
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
+	
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement(
-				"SELECT department.*, campus.name AS campusName " +
+
+			Statement = "SELECT department.*, campus.name AS campusName " +
 				"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " +
-				"WHERE idDepartment = ?");
+				"WHERE idDepartment = ?"
+
+			Connection conn = ConnectionDAO.getInstance().getConnection();
+			PreparedStatement stmt = conn.prepareStatement(Statement);
 		
 			stmt.setInt(1, id);
 			
