@@ -30,7 +30,8 @@ public class DepartmentDAO {
 	public Department findById(int id) throws SQLException{
 
 		try{
-			Statement = "SELECT department.*, campus.name AS campusName " +
+
+			String Statement = "SELECT department.*, campus.name AS campusName " +
 				"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " +
 				"WHERE idDepartment = ?"
 
@@ -39,11 +40,9 @@ public class DepartmentDAO {
 			stmt.setInt(1, id);
 		
 			rs = stmt.executeQuery();
-			if(rs.next()){
-				return this.loadObject(rs);
-			}else{
-				return null;
-			}
+
+			rs.next() ? return this.loadObject(rs) : return null
+			
 		}finally{
 			closeStatement(stmt);
 			closeResult(rs);
@@ -98,7 +97,7 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-		closeStatement(stmt);
+			closeStatement(stmt);
 			closeResult(rs);
 			closeConnection(conn);
 		}
