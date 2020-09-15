@@ -13,17 +13,13 @@ import br.edu.utfpr.dv.siacoes.model.ActivityUnit;
 
 public class ActivityUnitDAO {
 
-	public void closeStatement(PreparedStatement stmt){
+	public void closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn){
 		if((stmt != null) && !stmt.isClosed())
-					stmt.close();;
-	}
-	public void closeResult(ResultSet rs){
+			stmt.close();
 		if((rs != null) && !rs.isClosed())
-					rs.close();
-	}
-	public void closeConnection(Connection conn){
+			rs.close();
 		if((conn != null) && !conn.isClosed())
-					conn.close();
+			conn.close();
 	}
 	
 	public List<ActivityUnit> listAll() throws SQLException{
@@ -45,9 +41,7 @@ public class ActivityUnitDAO {
 			
 			return list;
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 		}
 	}
 	
@@ -70,9 +64,7 @@ public class ActivityUnitDAO {
 				return null;
 			}
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 		}
 	}
 	
@@ -115,9 +107,7 @@ public class ActivityUnitDAO {
 			
 			return unit.getIdActivityUnit();
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 		}
 	}
 	

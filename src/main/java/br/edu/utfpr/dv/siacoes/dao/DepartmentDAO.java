@@ -14,18 +14,15 @@ import br.edu.utfpr.dv.siacoes.model.Department;
 
 public class DepartmentDAO {
 
-	public void closeStatement(PreparedStatement stmt){
+	public void closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn){
 		if((stmt != null) && !stmt.isClosed())
-					stmt.close();;
-	}
-	public void closeResult(ResultSet rs){
+		stmt.close();
 		if((rs != null) && !rs.isClosed())
-					rs.close();
-	}
-	public void closeConnection(Connection conn){
+			rs.close();
 		if((conn != null) && !conn.isClosed())
-					conn.close();
+			conn.close();
 	}
+
 
 	public Department findById(int id) throws SQLException{
 
@@ -44,9 +41,7 @@ public class DepartmentDAO {
 			rs.next() ? return this.loadObject(rs) : return null
 			
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 	}
 	
 	public List<Department> listAll(boolean onlyActive) throws SQLException{
@@ -70,9 +65,7 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 		}
 	}
 	
@@ -97,9 +90,7 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 		}
 	}
 	
@@ -150,9 +141,7 @@ public class DepartmentDAO {
 			
 			return department.getIdDepartment();
 		}finally{
-			closeStatement(stmt);
-			closeResult(rs);
-			closeConnection(conn);
+			closeConnection(stmt, rs, conn);
 		}
 	}
 	
