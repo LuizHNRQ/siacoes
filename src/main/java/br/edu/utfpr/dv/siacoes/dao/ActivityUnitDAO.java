@@ -1,27 +1,28 @@
 package br.edu.utfpr.dv.siacoes.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import br.edu.utfpr.dv.siacoes.log.UpdateEvent;
 import br.edu.utfpr.dv.siacoes.model.ActivityUnit;
+import br.edu.utfpr.dv.siacoes.model.Department;
 
-public class ActivityUnitDAO {
+public class ActivityUnitDAO extends Template{
 
-	public void closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn){
-		if((stmt != null) && !stmt.isClosed())
-			stmt.close();
-		if((rs != null) && !rs.isClosed())
-			rs.close();
-		if((conn != null) && !conn.isClosed())
-			conn.close();
+	public void closeConnection() {
+		closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn);
 	}
-	
+
+	@Override
+	protected String getStringSQLFindById() {
+		return "SELECT * FROM activityunit WHERE idActivityUnit=?";
+	}
+	@Override
+	public Object findById(int id) throws SQLException {
+		super.findById(id);
+	}
+
 	public List<ActivityUnit> listAll() throws SQLException{
 		Connection conn = null;
 		Statement stmt = null;
@@ -44,72 +45,35 @@ public class ActivityUnitDAO {
 			closeConnection(stmt, rs, conn);
 		}
 	}
-	
-	public ActivityUnit findById(int id) throws SQLException{
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
-		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement("SELECT * FROM activityunit WHERE idActivityUnit=?");
-		
-			stmt.setInt(1, id);
-			
-			rs = stmt.executeQuery();
-			
-			if(rs.next()){
-				return this.loadObject(rs);
-			}else{
-				return null;
-			}
-		}finally{
-			closeConnection(stmt, rs, conn);
-		}
+
+	@Override
+	protected String getStringFirstLocal() {
+		return "INSERT INTO activityunit(description, fillAmount, amountDescription) VALUES(?, ?, ?)";
 	}
-	
-	public int save(int idUser, ActivityUnit unit) throws SQLException{
-		boolean insert = (unit.getIdActivityUnit() == 0);
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
-		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			
-			if(insert){
-				stmt = conn.prepareStatement("INSERT INTO activityunit(description, fillAmount, amountDescription) VALUES(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-			}else{
-				stmt = conn.prepareStatement("UPDATE activityunit SET description=?, fillAmount=?, amountDescription=? WHERE idActivityUnit=?");
-			}
-			
-			stmt.setString(1, unit.getDescription());
-			stmt.setInt(2, (unit.isFillAmount() ? 1 : 0));
-			stmt.setString(3, unit.getAmountDescription());
-			
-			if(!insert){
-				stmt.setInt(4, unit.getIdActivityUnit());
-			}
-			
-			stmt.execute();
-			
-			if(insert){
-				rs = stmt.getGeneratedKeys();
-				
-				if(rs.next()){
-					unit.setIdActivityUnit(rs.getInt(1));
-				}
-				
-				new UpdateEvent(conn).registerInsert(idUser, unit);
-			} else {
-				new UpdateEvent(conn).registerUpdate(idUser, unit);
-			}
-			
-			return unit.getIdActivityUnit();
-		}finally{
-			closeConnection(stmt, rs, conn);
-		}
+
+	@Override
+	protected String getStringSecondLocal() {
+		return "UPDATE activityunit SET description=?, fillAmount=?, amountDescription=? WHERE idActivityUnit=?";
 	}
+
+	@Override
+	protected Class getIdClasse() {
+		return ActivityUnit.getIdActivityUnit() ;
+	}
+
+	@Override
+	protected void definirSaveLocal(PreparedStatement stmt, Department department)throws SQLException {
+		stmt.setString(1, unit.getDescription());
+		stmt.setInt(2, (unit.isFillAmount() ? 1 : 0));
+		stmt.setString(3, unit.getAmountDescription());
+
+		if(!insert){
+			stmt.setInt(4, unit.getIdActivityUnit());
+		}
+
+	}
+
+
 	
 	private ActivityUnit loadObject(ResultSet rs) throws SQLException{
 		ActivityUnit unit = new ActivityUnit();

@@ -14,38 +14,24 @@ import br.edu.utfpr.dv.siacoes.model.BugReport.BugStatus;
 import br.edu.utfpr.dv.siacoes.model.Module;
 import br.edu.utfpr.dv.siacoes.model.User;
 
-public class BugReportDAO {
+public class BugReportDAO extends Template {
 
-	public void closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn){
-		if((stmt != null) && !stmt.isClosed())
-			stmt.close();
-		if((rs != null) && !rs.isClosed())
-			rs.close();
-		if((conn != null) && !conn.isClosed())
-			conn.close();
+	public void closeConnection() {
+		closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn);
 	}
-	
-	public BugReport findById(int id) throws SQLException{
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
-		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement("SELECT bugreport.*, \"user\".name " + 
+
+	@Override
+	protected String getStringSQLFindById() {
+		return "SELECT bugreport.*, \"user\".name " +
 				"FROM bugreport INNER JOIN \"user\" ON \"user\".idUser=bugreport.idUser " +
-				"WHERE idBugReport = ?");
-		
-			stmt.setInt(1, id);
-			
-			rs = stmt.executeQuery();
-			
-			rs.next() ? return this.loadObject(rs) : return null;
-			
-		}finally{
-			closeConnection(stmt, rs, conn);
-		}
+				"WHERE idBugReport = ?";
 	}
+
+	@Override
+	public Object findById(int id) throws SQLException {
+		super.findById(id);
+	}
+
 	
 	public List<BugReport> listAll() throws SQLException{
 		Connection conn = null;
@@ -70,22 +56,23 @@ public class BugReportDAO {
 			closeConnection(stmt, rs, conn);
 		}
 	}
-	
-	public int save(BugReport bug) throws SQLException{
+
+	@Override
+	public void save(BugReport bug, int idUser) {
 		boolean insert = (bug.getIdBugReport() == 0);
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		
+
 		try{
 			conn = ConnectionDAO.getInstance().getConnection();
-			
+
 			if(insert){
 				stmt = conn.prepareStatement("INSERT INTO bugreport(idUser, module, title, description, reportDate, type, status, statusDate, statusDescription) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			}else{
 				stmt = conn.prepareStatement("UPDATE bugreport SET idUser=?, module=?, title=?, description=?, reportDate=?, type=?, status=?, statusDate=?, statusDescription=? WHERE idBugReport=?");
 			}
-			
+
 			stmt.setInt(1, bug.getUser().getIdUser());
 			stmt.setInt(2, bug.getModule().getValue());
 			stmt.setString(3, bug.getTitle());
@@ -99,27 +86,27 @@ public class BugReportDAO {
 				stmt.setDate(8, new java.sql.Date(bug.getStatusDate().getTime()));
 			}
 			stmt.setString(9, bug.getStatusDescription());
-			
+
 			if(!insert){
 				stmt.setInt(10, bug.getIdBugReport());
 			}
-			
+
 			stmt.execute();
-			
+
 			if(insert){
 				rs = stmt.getGeneratedKeys();
-				
+
 				if(rs.next()){
 					bug.setIdBugReport(rs.getInt(1));
 				}
 			}
-			
+
 			return bug.getIdBugReport();
 		}finally{
 			closeConnection(stmt, rs, conn);
 		}
 	}
-	
+
 	private BugReport loadObject(ResultSet rs) throws SQLException{
 		BugReport bug = new BugReport();
 		

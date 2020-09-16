@@ -12,38 +12,24 @@ import java.util.List;
 import br.edu.utfpr.dv.siacoes.log.UpdateEvent;
 import br.edu.utfpr.dv.siacoes.model.Department;
 
-public class DepartmentDAO {
+public class DepartmentDAO extends Template{
 
-	public void closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn){
-		if((stmt != null) && !stmt.isClosed())
-		stmt.close();
-		if((rs != null) && !rs.isClosed())
-			rs.close();
-		if((conn != null) && !conn.isClosed())
-			conn.close();
+	public void closeConnection() {
+		closeConnection(PreparedStatement stmt, ResultSet rs, Connection conn);
 	}
 
-
-	public Department findById(int id) throws SQLException{
-
-		try{
-
-			String Statement = "SELECT department.*, campus.name AS campusName " +
+	@Override
+	protected String getStringSQLFindById() {
+		return "SELECT department.*, campus.name AS campusName " +
 				"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " +
-				"WHERE idDepartment = ?"
-
-			Connection conn = ConnectionDAO.getInstance().getConnection();
-			PreparedStatement stmt = conn.prepareStatement(Statement);
-			stmt.setInt(1, id);
-		
-			rs = stmt.executeQuery();
-
-			rs.next() ? return this.loadObject(rs) : return null
-			
-		}finally{
-			closeConnection(stmt, rs, conn);
+				"WHERE idDepartment = ?";
 	}
-	
+
+	@Override
+	public Object findById(int id) throws SQLException {
+		 super.findById(id);
+	}
+
 	public List<Department> listAll(boolean onlyActive) throws SQLException{
 		Connection conn = null;
 		Statement stmt = null;
@@ -93,58 +79,45 @@ public class DepartmentDAO {
 			closeConnection(stmt, rs, conn);
 		}
 	}
-	
-	public int save(int idUser, Department department) throws SQLException{
-		boolean insert = (department.getIdDepartment() == 0);
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
-		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			
-			if(insert){
-				stmt = conn.prepareStatement("INSERT INTO department(idCampus, name, logo, active, site, fullName, initials) VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-			}else{
-				stmt = conn.prepareStatement("UPDATE department SET idCampus=?, name=?, logo=?, active=?, site=?, fullName=?, initials=? WHERE idDepartment=?");
-			}
-			
-			stmt.setInt(1, department.getCampus().getIdCampus());
-			stmt.setString(2, department.getName());
-			if(department.getLogo() == null){
-				stmt.setNull(3, Types.BINARY);
-			}else{
-				stmt.setBytes(3, department.getLogo());	
-			}
-			stmt.setInt(4, department.isActive() ? 1 : 0);
-			stmt.setString(5, department.getSite());
-			stmt.setString(6, department.getFullName());
-			stmt.setString(7, department.getInitials());
-			
-			if(!insert){
-				stmt.setInt(8, department.getIdDepartment());
-			}
-			
-			stmt.execute();
-			
-			if(insert){
-				rs = stmt.getGeneratedKeys();
-				
-				if(rs.next()){
-					department.setIdDepartment(rs.getInt(1));
-				}
 
-				new UpdateEvent(conn).registerInsert(idUser, department);
-			} else {
-				new UpdateEvent(conn).registerUpdate(idUser, department);
-			}
-			
-			return department.getIdDepartment();
-		}finally{
-			closeConnection(stmt, rs, conn);
-		}
+
+
+
+	@Override
+	protected String getStringFirstLocal() {
+		return "INSERT INTO department(idCampus, name, logo, active, site, fullName, initials) VALUES(?, ?, ?, ?, ?, ?, ?)";
 	}
-	
+
+	@Override
+	protected String getStringSecondLocal() {
+		return "UPDATE department SET idCampus=?, name=?, logo=?, active=?, site=?, fullName=?, initials=? WHERE idDepartment=?";
+	}
+
+	@Override
+	protected Class getIdClasse() {
+		return Department.getIdDepartment() ;
+	}
+
+	@Override
+	protected void definirSaveLocal(PreparedStatement stmt, Department department)throws SQLException {
+		stmt.setInt(1, department.getCampus().getIdCampus());
+		stmt.setString(2, department.getName());
+		if(department.getLogo() == null){
+			stmt.setNull(3, Types.BINARY);
+		}else{
+			stmt.setBytes(3, department.getLogo());
+		}
+		stmt.setInt(4, department.isActive() ? 1 : 0);
+		stmt.setString(5, department.getSite());
+		stmt.setString(6, department.getFullName());
+		stmt.setString(7, department.getInitials());
+
+		if(!insert){
+			stmt.setInt(8, department.getIdDepartment());
+		}
+
+	}
+
 	private Department loadObject(ResultSet rs) throws SQLException{
 		Department department = new Department();
 		
@@ -162,3 +135,13 @@ public class DepartmentDAO {
 	}
 	
 }
+
+
+
+
+
+
+
+
+
+
